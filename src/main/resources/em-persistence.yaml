@@ -1,0 +1,220 @@
+openapi: 3.0.0
+
+info:
+  version: 0.0.1
+  title: Employee Persistence Service API
+  description: Manage the persistence of the employee
+
+tags:
+  - name: EmployeePersistenceService
+    description: "Employee Persistence Service API"
+
+servers:
+  - url: http://localhost:8080
+    description: for local testing
+
+paths:
+  '/api/employees':
+    post:
+      tags:
+        - EmployeePersistenceService
+        - POST
+      description: |
+        Create an employee
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+      requestBody:
+        $ref: '#/components/requestBodies/createUpdateEmployeeRequest'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/getEmployee.result.ok"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "500":
+          description: Internal server error
+  '/api/employees/{id}':
+    get:
+      tags:
+        - EmployeePersistenceService
+        - GET
+      description: |
+        Retrieves employees by id
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+        - $ref: '#/components/parameters/id'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/getEmployee.result.ok"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+    delete:
+      tags:
+        - EmployeePersistenceService
+        - DEL
+      description: |
+        Delete an employee
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+        - $ref: '#/components/parameters/id'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/success.response"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+    put:
+      tags:
+        - EmployeePersistenceService
+        - PUT
+      description: |
+        Update an employee
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        $ref: '#/components/requestBodies/createUpdateEmployeeRequest'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/getEmployee.result.ok"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+
+components:
+  requestBodies:
+    createUpdateEmployeeRequest:
+      required: true
+      description: "Request to create an employee"
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/createUpdateEmployeeRequest'
+
+    getEmployeeRequest:
+      required: true
+      description: "Retrieve an employee"
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/getEmployeeRequest'
+
+  parameters:
+    x-api-key:
+      in: header
+      name: x-api-key
+      schema:
+        type: string
+      description: your api key for Employee Persistence Service
+      required: true
+
+    id:
+      in: path
+      name: id
+      description: "ID of employee"
+      schema:
+        type: integer
+        example: 1
+      required: true
+
+  schemas:
+    getEmployee.result.ok:
+      type: object
+      description: Return the employee.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role_id:
+          type: integer
+
+      required:
+        - id
+        - name
+        - role_id
+
+    error.response:
+      type: object
+      properties:
+        errorMessages:
+          type: array
+          items:
+            type: string
+          example: [ "Field 'name' is required.", "Field 'age' must be a positive string." ]
+
+    success.response:
+      type: object
+      description: Return a message
+      properties:
+        message:
+          type: string
+
+    createUpdateEmployeeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        role_id:
+          type: integer
+
+      required:
+        - name
+        - role_id
+
+    getEmployeeRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role_id:
+          type: integer
+
+      required:
+        - id
+        - name
+        - role_id
+
