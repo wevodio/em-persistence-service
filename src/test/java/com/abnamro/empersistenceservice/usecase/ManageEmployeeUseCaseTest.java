@@ -5,6 +5,7 @@ import com.abnamro.empersistenceservice.entities.Role;
 import com.abnamro.empersistenceservice.exception.ErrorMessageException;
 import com.abnamro.empersistenceservice.generated.model.CreateUpdateEmployeeRequest;
 import com.abnamro.empersistenceservice.presenter.JsonEmployeePresenter;
+import com.abnamro.empersistenceservice.presenter.JsonGenericSuccessPresenter;
 import com.abnamro.empersistenceservice.repository.EmployeeRepository;
 import com.abnamro.empersistenceservice.repository.RoleRepository;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,8 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
+import static com.abnamro.empersistenceservice.utils.TestUtil.constructCreateUpdateEmployeeRequest;
+import static com.abnamro.empersistenceservice.utils.TestUtil.constructEmployee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,16 +58,6 @@ class ManageEmployeeUseCaseTest {
                 () -> manageEmployeeUseCase.getEmployeeById(1, presenter));
 
         assertThat(error.getErrorMessages().get(0)).isEqualTo("Employee not found.");
-    }
-
-    @NotNull
-    private Optional<Employee> constructEmployee() {
-        return Optional.of(Employee.builder()
-                .firstName("John")
-                .surname("Doe")
-                .id(1)
-                .role(Role.builder().id(1).build())
-                .build());
     }
 
     @Test
@@ -126,16 +119,49 @@ class ManageEmployeeUseCaseTest {
 
     @Test
     void updateEmployee() {
+        var createUpdateEmployeeRequest = constructCreateUpdateEmployeeRequest();
+        var presenter = new JsonEmployeePresenter();
+        when(employeeRepository.findById(1)).thenReturn(constructEmployee());
+        when(roleRepository.findById(1)).thenReturn(constructRole());
+        manageEmployeeUseCase.updateEmployee(1, createUpdateEmployeeRequest, presenter);
+        assertThat(presenter.toResponseEntity().getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void updateEmployeeNoRoleProdivded() {
+        var createUpdateEmployeeRequest = constructCreateUpdateEmployeeRequest();
+        createUpdateEmployeeRequest.setRoleId(null);
+        var presenter = new JsonEmployeePresenter();
+        var error = assertThrows(ErrorMessageException.class,
+                () -> manageEmployeeUseCase.updateEmployee(1, createUpdateEmployeeRequest, presenter));
+        assertThat(error.getErrorMessages().get(0)).isEqualTo("Role id is mandatory");
+    }
+
+    @Test
+    void updateEmployeeWhenEmployeeNotFound() {
+        var createUpdateEmployeeRequest = constructCreateUpdateEmployeeRequest();
+        var presenter = new JsonEmployeePresenter();
+        when(employeeRepository.findById(1)).thenReturn(Optional.empty());
+        var error = assertThrows(ErrorMessageException.class,
+                () -> manageEmployeeUseCase.updateEmployee(1, createUpdateEmployeeRequest, presenter));
+        assertThat(error.getErrorMessages().get(0)).isEqualTo("Employee not found.");
     }
 
     @Test
     void removeEmployee() {
+        var presenter = new JsonGenericSuccessPresenter();
+        when(employeeRepository.findById(1)).thenReturn(constructEmployee());
+        manageEmployeeUseCase.removeEmployee(1, presenter);
+        assertThat(presenter.toResponseEntity().getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    private CreateUpdateEmployeeRequest constructCreateUpdateEmployeeRequest(){
-        var createUpdateEmployeeRequest = new CreateUpdateEmployeeRequest();
-        createUpdateEmployeeRequest.setName("John Doe");
-        createUpdateEmployeeRequest.setRoleId(1);
-        return createUpdateEmployeeRequest;
+    @Test
+    void removeEmployeeNotFound() {
+        var presenter = new JsonGenericSuccessPresenter();
+        when(employeeRepository.findById(1)).thenReturn(Optional.empty());
+        var error = assertThrows(ErrorMessageException.class,
+                () -> manageEmployeeUseCase.removeEmployee(1, presenter));
+        assertThat(error.getErrorMessages().get(0)).isEqualTo("Removing employee failed. Employee not found.");
     }
+
 }
