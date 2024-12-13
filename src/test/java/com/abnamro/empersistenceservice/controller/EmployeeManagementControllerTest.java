@@ -3,7 +3,6 @@ package com.abnamro.empersistenceservice.controller;
 import com.abnamro.empersistenceservice.generated.model.CreateUpdateEmployeeRequest;
 import com.abnamro.empersistenceservice.presenter.EmployeePresenter;
 import com.abnamro.empersistenceservice.presenter.GenericSuccessPresenter;
-import com.abnamro.empersistenceservice.repository.EmployeeRepository;
 import com.abnamro.empersistenceservice.usecase.ManageEmployeeUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static com.abnamro.empersistenceservice.utils.TestUtil.constructCreateUpdateEmployeeRequest;
 import static com.abnamro.empersistenceservice.utils.TestUtil.constructEmployee;
