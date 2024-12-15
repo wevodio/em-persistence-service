@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 import static com.abnamro.empersistenceservice.utils.TestUtil.constructCreateUpdateEmployeeRequest;
@@ -118,6 +119,7 @@ class ManageEmployeeUseCaseTest {
         return Optional.of(Role.builder()
                 .id(1)
                 .name("ADMIN")
+                .employees(new HashSet<>())
                 .build());
     }
 
