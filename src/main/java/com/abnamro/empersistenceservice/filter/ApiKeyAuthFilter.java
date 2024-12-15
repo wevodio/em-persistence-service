@@ -30,7 +30,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         String requestApiKey = request.getHeader("x-api-key");
 
-        if (apiKey.equals(requestApiKey)) {
+        if (apiKey.equals(requestApiKey) && request.getRequestURI().contains("/api")) {
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken("apiKeyUser", null,
                             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));

@@ -2,9 +2,9 @@
 
 DELIMITER $$
 
-CREATE PROCEDURE DeleteRoleAndReassignProjects(
-    IN roleId BIGINT,
-    IN defaultEmployeeId BIGINT
+CREATE PROCEDURE DELETEROLEANDREASSIGNPROJECTS(
+    IN roleId INT,
+    IN defaultEmployeeId INT
 )
 BEGIN
     -- Step 1: Check if the default employee exists

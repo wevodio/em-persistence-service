@@ -7,6 +7,7 @@ import com.abnamro.empersistenceservice.generated.model.CreateUpdateEmployeeRequ
 import com.abnamro.empersistenceservice.presenter.JsonEmployeePresenter;
 import com.abnamro.empersistenceservice.presenter.JsonGenericSuccessPresenter;
 import com.abnamro.empersistenceservice.repository.EmployeeRepository;
+import com.abnamro.empersistenceservice.repository.ProjectRepository;
 import com.abnamro.empersistenceservice.repository.RoleRepository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,11 +36,14 @@ class ManageEmployeeUseCaseTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private ProjectRepository projectRepository;
+
     private ManageEmployeeUseCase manageEmployeeUseCase;
 
     @BeforeEach
     void setup(){
-        manageEmployeeUseCase = new ManageEmployeeUseCase(employeeRepository, roleRepository);
+        manageEmployeeUseCase = new ManageEmployeeUseCase(employeeRepository, roleRepository, projectRepository);
     }
 
     @Test

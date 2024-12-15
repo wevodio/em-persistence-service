@@ -121,6 +121,114 @@ paths:
           description: Not found
         "500":
           description: Internal server error
+  '/api/roles':
+    post:
+      tags:
+        - EmployeePersistenceService
+        - POST
+      description: |
+        Create a role
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+      requestBody:
+        $ref: '#/components/requestBodies/createUpdateRoleRequest'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/getRole.result.ok"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "500":
+          description: Internal server error
+
+  '/api/roles/{id}':
+    get:
+      tags:
+        - EmployeePersistenceService
+        - GET
+      description: |
+        Retrieves role by id
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+        - $ref: '#/components/parameters/id'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/getRole.result.ok"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+    delete:
+      tags:
+        - EmployeePersistenceService
+        - DEL
+      description: |
+        Delete a role
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+        - $ref: '#/components/parameters/id'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/success.response"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+  '/api/projects/{id}':
+    get:
+      tags:
+        - EmployeePersistenceService
+        - GET
+      description: |
+        Retrieves project by id
+      parameters:
+        - $ref: '#/components/parameters/x-api-key'
+        - $ref: '#/components/parameters/id'
+      responses:
+        "200":
+          description: Ok Result
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/getProject.result.ok"
+        "400":
+          description: Bad request response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error.response'
+        "404":
+          description: Not found
+        "500":
+          description: Internal server error
+
 
 components:
   requestBodies:
@@ -132,13 +240,13 @@ components:
           schema:
             $ref: '#/components/schemas/createUpdateEmployeeRequest'
 
-    getEmployeeRequest:
+    createUpdateRoleRequest:
       required: true
-      description: "Retrieve an employee"
+      description: "Request to create an role"
       content:
         "application/json":
           schema:
-            $ref: '#/components/schemas/getEmployeeRequest'
+            $ref: '#/components/schemas/createUpdateRoleRequest'
 
   parameters:
     x-api-key:
@@ -159,6 +267,56 @@ components:
       required: true
 
   schemas:
+    getRole.result.ok:
+      type: object
+      description: Return the role.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        employees:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+            required:
+              - id
+              - name
+
+      required:
+        - id
+        - name
+
+
+    getProject.result.ok:
+      type: object
+      description: Return the project.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        employees:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+            required:
+              - id
+              - name
+      required:
+        - id
+        - name
+
     getEmployee.result.ok:
       type: object
       description: Return the employee.
@@ -169,11 +327,14 @@ components:
           type: string
         role_id:
           type: integer
-
+        project_id:
+          type: integer
       required:
         - id
         - name
         - role_id
+
+
 
     error.response:
       type: object
@@ -196,6 +357,8 @@ components:
       properties:
         name:
           type: string
+        project_id:
+          type: integer
         role_id:
           type: integer
 
@@ -203,18 +366,14 @@ components:
         - name
         - role_id
 
-    getEmployeeRequest:
+    createUpdateRoleRequest:
       type: object
       properties:
-        id:
-          type: integer
         name:
           type: string
-        role_id:
-          type: integer
 
       required:
-        - id
         - name
-        - role_id
+
+
 

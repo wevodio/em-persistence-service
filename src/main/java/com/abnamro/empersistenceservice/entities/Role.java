@@ -1,10 +1,7 @@
 package com.abnamro.empersistenceservice.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
@@ -13,9 +10,11 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 @NamedStoredProcedureQuery(
         name = "Role.deleteRoleAndReassignProjects",
-        procedureName = "DeleteRoleAndReassignProjects",
+        procedureName = "DELETEROLEANDREASSIGNPROJECTS",
         parameters = {
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "roleId", type = Long.class),
                 @StoredProcedureParameter(mode = ParameterMode.IN, name = "defaultEmployeeId", type = Long.class)
@@ -24,10 +23,12 @@ import java.util.Set;
 public class Role {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String name;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy="role", cascade = CascadeType.PERSIST)
     private Set<Employee> employees;
 
 

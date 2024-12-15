@@ -7,11 +7,13 @@ import com.abnamro.empersistenceservice.generated.model.CreateUpdateEmployeeRequ
 import com.abnamro.empersistenceservice.presenter.EmployeePresenter;
 import com.abnamro.empersistenceservice.presenter.GenericSuccessPresenter;
 import com.abnamro.empersistenceservice.repository.EmployeeRepository;
+import com.abnamro.empersistenceservice.repository.ProjectRepository;
 import com.abnamro.empersistenceservice.repository.RoleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +22,7 @@ public class ManageEmployeeUseCase {
 
     private final EmployeeRepository employeeRepository;
     private final RoleRepository roleRepository;
+    private final ProjectRepository projectRepository;
 
     public void getEmployeeById(Integer id, EmployeePresenter employeePresenter){
         employeeRepository.findById(id)
@@ -28,6 +31,7 @@ public class ManageEmployeeUseCase {
                 });
     }
 
+    @Transactional
     public void createEmployee(CreateUpdateEmployeeRequest createUpdateEmployeeRequest, EmployeePresenter employeePresenter){
         validateRequest(createUpdateEmployeeRequest);
         try {
@@ -41,15 +45,28 @@ public class ManageEmployeeUseCase {
     }
 
     private Employee constructEmployee(CreateUpdateEmployeeRequest createUpdateEmployeeRequest) {
-        Role role = roleRepository.findById(createUpdateEmployeeRequest.getRoleId())
-                .orElseThrow(() -> new ErrorMessageException("Role doesnt exist."));
-
         var names = createUpdateEmployeeRequest.getName().split(" ");
-        return Employee.builder()
+        var employee = Employee.builder()
                 .firstName(names[0])
                 .surname(names[1])
-                .role(role)
                 .build();
+
+        roleRepository.findById(createUpdateEmployeeRequest.getRoleId())
+                .ifPresentOrElse(role -> {
+                    role.getEmployees().add(employee);
+                    employee.setRole(role);
+                }, () -> {
+                    throw new ErrorMessageException("Role doesnt exist.");
+                });
+
+        createUpdateEmployeeRequest.getProjectId()
+                .flatMap(projectId -> projectRepository.findById(projectId))
+                .ifPresent(project -> {
+                    project.getEmployees().add(employee);
+                    employee.setProject(project);
+                });
+
+        return employee;
     }
 
     public void updateEmployee(Integer employeeId, CreateUpdateEmployeeRequest createUpdateEmployeeRequest, EmployeePresenter presenter){

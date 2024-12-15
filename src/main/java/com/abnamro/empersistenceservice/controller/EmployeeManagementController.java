@@ -1,12 +1,11 @@
 package com.abnamro.empersistenceservice.controller;
 
 import com.abnamro.empersistenceservice.generated.api.EmployeePersistenceServiceApi;
-import com.abnamro.empersistenceservice.generated.model.CreateUpdateEmployeeRequest;
-import com.abnamro.empersistenceservice.generated.model.GetEmployeeResultOk;
-import com.abnamro.empersistenceservice.generated.model.SuccessResponse;
-import com.abnamro.empersistenceservice.presenter.JsonEmployeePresenter;
-import com.abnamro.empersistenceservice.presenter.JsonGenericSuccessPresenter;
+import com.abnamro.empersistenceservice.generated.model.*;
+import com.abnamro.empersistenceservice.presenter.*;
 import com.abnamro.empersistenceservice.usecase.ManageEmployeeUseCase;
+import com.abnamro.empersistenceservice.usecase.ManageProjectUseCase;
+import com.abnamro.empersistenceservice.usecase.ManageRoleUseCase;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmployeeManagementController implements EmployeePersistenceServiceApi {
 
     private ManageEmployeeUseCase manageEmployeeUseCase;
+    private ManageRoleUseCase manageRoleUseCase;
+    private ManageProjectUseCase manageProjectUseCase;
 
     @Override
     public ResponseEntity<GetEmployeeResultOk> apiEmployeesPost(CreateUpdateEmployeeRequest createUpdateEmployeeRequest) {
@@ -45,5 +46,32 @@ public class EmployeeManagementController implements EmployeePersistenceServiceA
         return presenter.toResponseEntity();
     }
 
+    @Override
+    public ResponseEntity<GetRoleResultOk> apiRolesIdGet(Integer id) {
+        var presenter = new JsonRolePresenter();
+        manageRoleUseCase.getRole(id, presenter);
+        return presenter.toResponseEntity();
+    }
 
+    @Override
+    public ResponseEntity<SuccessResponse> apiRolesIdDelete(Integer id) {
+        var presenter = new JsonGenericSuccessPresenter();
+        manageRoleUseCase.removeRole(id, presenter);
+        return presenter.toResponseEntity();
+    }
+
+    @Override
+    public ResponseEntity<GetRoleResultOk> apiRolesPost(CreateUpdateRoleRequest createUpdateRoleRequest) {
+        var presenter = new JsonRolePresenter();
+        manageRoleUseCase.createRole(createUpdateRoleRequest, presenter);
+        return presenter.toResponseEntity();
+
+    }
+
+    @Override
+    public ResponseEntity<GetProjectResultOk> apiProjectsIdGet(Integer id) {
+        var presenter = new JsonProjectPresenter();
+        manageProjectUseCase.getProject(id, presenter);
+        return presenter.toResponseEntity();
+    }
 }

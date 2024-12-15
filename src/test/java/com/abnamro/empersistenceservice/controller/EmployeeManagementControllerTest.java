@@ -1,18 +1,23 @@
 package com.abnamro.empersistenceservice.controller;
 
 import com.abnamro.empersistenceservice.generated.model.CreateUpdateEmployeeRequest;
+import com.abnamro.empersistenceservice.generated.model.GetRoleResultOk;
 import com.abnamro.empersistenceservice.presenter.EmployeePresenter;
 import com.abnamro.empersistenceservice.presenter.GenericSuccessPresenter;
+import com.abnamro.empersistenceservice.presenter.JsonRolePresenter;
+import com.abnamro.empersistenceservice.presenter.RolePresenter;
 import com.abnamro.empersistenceservice.usecase.ManageEmployeeUseCase;
+import com.abnamro.empersistenceservice.usecase.ManageProjectUseCase;
+import com.abnamro.empersistenceservice.usecase.ManageRoleUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import static com.abnamro.empersistenceservice.utils.TestUtil.constructCreateUpdateEmployeeRequest;
-import static com.abnamro.empersistenceservice.utils.TestUtil.constructEmployee;
+import static com.abnamro.empersistenceservice.utils.TestUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -23,12 +28,16 @@ class EmployeeManagementControllerTest {
 
     @Mock
     private ManageEmployeeUseCase manageEmployeeUseCase;
+    @Mock
+    private ManageRoleUseCase manageRoleUseCase;
+    @Mock
+    private ManageProjectUseCase manageProjectUseCase;
     private EmployeeManagementController controller;
 
 
     @BeforeEach
     void setup() {
-        controller = new EmployeeManagementController(manageEmployeeUseCase);
+        controller = new EmployeeManagementController(manageEmployeeUseCase, manageRoleUseCase, manageProjectUseCase);
     }
 
     @Test
@@ -78,6 +87,32 @@ class EmployeeManagementControllerTest {
         var result = controller.apiEmployeesPost(constructCreateUpdateEmployeeRequest());
         assertThat(result.getStatusCode().value()).isEqualTo(HttpStatus.OK.value());
     }
+
+    @Test
+    void apiRolesIdGet() {
+        doAnswer(invocation -> {
+            var presenter = (RolePresenter)invocation.getArgument(1);
+            presenter.success(constructRole());
+            return null;
+        }).when(manageRoleUseCase).getRole(anyInt(), any(RolePresenter.class));
+
+        var getRoleResultOk = controller.apiRolesIdGet(1);
+        assertThat(getRoleResultOk.getStatusCode().value()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    void apiRolesIdDelete() {
+        doAnswer(invocation -> {
+            var presenter = (GenericSuccessPresenter)invocation.getArgument(1);
+            presenter.success("");
+            return null;
+        }).when(manageRoleUseCase).removeRole(anyInt(), any(GenericSuccessPresenter.class));
+
+        var getRoleResultOkResponseEntity = controller.apiRolesIdDelete(1);
+        assertThat(getRoleResultOkResponseEntity.getStatusCode().value()).isEqualTo(HttpStatus.OK.value());
+    }
+
+
 
 
 
